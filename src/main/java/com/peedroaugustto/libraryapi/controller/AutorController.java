@@ -1,0 +1,93 @@
+package com.peedroaugustto.libraryapi.controller;
+
+
+import com.peedroaugustto.libraryapi.controller.dto.AutorDTO;
+import com.peedroaugustto.libraryapi.controller.dto.ErroResposta;
+import com.peedroaugustto.libraryapi.controller.mapper.AutorMapper;
+import com.peedroaugustto.libraryapi.exceptions.OperacaoNaoPermitidaException;
+import com.peedroaugustto.libraryapi.exceptions.RegistroDuplicadoException;
+import com.peedroaugustto.libraryapi.model.Autor;
+import com.peedroaugustto.libraryapi.service.AutorService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("autores")
+@RequiredArgsConstructor
+public class AutorController implements GenericController {
+
+    private final AutorService service;
+    private final AutorMapper mapper;
+
+    @PostMapping
+    public ResponseEntity<?> salvar(@RequestBody @Valid AutorDTO dto) {
+        Autor autor = mapper.toEntity(dto);
+        service.salvar(autor);
+        URI location = gerarHeaderLocation(autor.getId());
+        return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<AutorDTO> obterDetalhes(@PathVariable String id) {
+        UUID idAutor = UUID.fromString(id);
+        return service.obterPorId(idAutor).map(it -> {
+            AutorDTO dto = mapper.toDTO(it);
+            return ResponseEntity.ok(dto);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deletar(@PathVariable String id) {
+        UUID idAutor = UUID.fromString(id);
+        Optional<Autor> autorOptional = service.obterPorId(idAutor);
+
+        if (autorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        service.deletar(autorOptional.get());
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<AutorDTO>> pesquisar(@RequestParam(required = false) String nome,
+                                                    @RequestParam(required = false) String nacionalidade) {
+
+
+        List<AutorDTO> autorList = service.pesquisaByExample(nome, nacionalidade)
+                .stream()
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(autorList);
+
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> atualizar(@PathVariable String id, @RequestBody AutorDTO autor) {
+        UUID idAutor = UUID.fromString(id);
+        Optional<Autor> autorOptional = service.obterPorId(idAutor);
+
+        if (autorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Autor autorAtualizar = autorOptional.get();
+        autorAtualizar.setNome(autor.nome());
+        autorAtualizar.setDataNascimento(autor.dataNascimento());
+        autorAtualizar.setNacionalidade(autor.nacionalidade());
+
+        service.atualizar(autorAtualizar);
+
+        return ResponseEntity.noContent().build();
+    }
+
+}
