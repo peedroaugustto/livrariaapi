@@ -2,8 +2,10 @@ package com.peedroaugustto.libraryapi.service;
 
 import com.peedroaugustto.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import com.peedroaugustto.libraryapi.model.Autor;
+import com.peedroaugustto.libraryapi.model.Usuario;
 import com.peedroaugustto.libraryapi.repository.AutorRepository;
 import com.peedroaugustto.libraryapi.repository.LivroRepository;
+import com.peedroaugustto.libraryapi.security.SecurityService;
 import com.peedroaugustto.libraryapi.validator.AutorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
@@ -21,9 +23,12 @@ public class AutorService {
     private final AutorRepository repository;
     private final AutorValidator validator;
     private final LivroRepository livroRepository;
+    private final SecurityService securityService;
 
     public Autor salvar(Autor autor){
         validator.validar(autor);
+        Usuario usuario = securityService.obterUsuarioLogado();
+        autor.setIdUsuario(usuario);
         return repository.save(autor);
     }
 

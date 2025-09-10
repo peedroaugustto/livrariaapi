@@ -2,8 +2,10 @@ package com.peedroaugustto.libraryapi.service;
 
 import com.peedroaugustto.libraryapi.model.GeneroLivro;
 import com.peedroaugustto.libraryapi.model.Livro;
+import com.peedroaugustto.libraryapi.model.Usuario;
 import com.peedroaugustto.libraryapi.repository.LivroRepository;
 import com.peedroaugustto.libraryapi.repository.specs.LivroSpecs;
+import com.peedroaugustto.libraryapi.security.SecurityService;
 import com.peedroaugustto.libraryapi.validator.LivroValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,9 +24,12 @@ public class LivroService {
 
     private final LivroRepository repository;
     private final LivroValidator validator;
+    private final SecurityService securityService;
 
     public void salvar(Livro livro) {
         validator.validar(livro);
+        Usuario usuario = securityService.obterUsuarioLogado();
+        livro.setIdUsuario(usuario);
         repository.save(livro);
     }
 
