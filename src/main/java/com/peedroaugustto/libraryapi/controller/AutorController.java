@@ -2,23 +2,14 @@ package com.peedroaugustto.libraryapi.controller;
 
 
 import com.peedroaugustto.libraryapi.controller.dto.AutorDTO;
-import com.peedroaugustto.libraryapi.controller.dto.ErroResposta;
 import com.peedroaugustto.libraryapi.controller.mapper.AutorMapper;
-import com.peedroaugustto.libraryapi.exceptions.OperacaoNaoPermitidaException;
-import com.peedroaugustto.libraryapi.exceptions.RegistroDuplicadoException;
 import com.peedroaugustto.libraryapi.model.Autor;
-import com.peedroaugustto.libraryapi.model.Usuario;
-import com.peedroaugustto.libraryapi.security.SecurityService;
 import com.peedroaugustto.libraryapi.service.AutorService;
-import com.peedroaugustto.libraryapi.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
