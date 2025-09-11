@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -31,9 +32,22 @@ public class LoginSocialSuccessHandler extends SavedRequestAwareAuthenticationSu
         String email = oAuth2User.getAttribute("email");
         Usuario usuario = usuarioService.obterPorEmail(email);
 
+        if(usuario == null){
+            usuario = new Usuario();
+            usuario.setEmail(email);
+            usuario.setLogin(obterLoginApartirEmail(email));
+            usuario.setSenha("123");
+            usuario.setRoles(List.of("OPERADOR"));
+            usuarioService.salvar(usuario);
+        }
+
         authentication = new CustomAuthentication(usuario);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         super.onAuthenticationSuccess(request, response, authentication);
 
+    }
+
+    private String obterLoginApartirEmail(String email) {
+            return email.substring(0, email.indexOf("@"));
     }
 }
