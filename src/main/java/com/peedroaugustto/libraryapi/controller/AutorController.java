@@ -5,6 +5,10 @@ import com.peedroaugustto.libraryapi.controller.dto.AutorDTO;
 import com.peedroaugustto.libraryapi.controller.mapper.AutorMapper;
 import com.peedroaugustto.libraryapi.model.Autor;
 import com.peedroaugustto.libraryapi.service.AutorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("autores")
 @RequiredArgsConstructor
+@Tag(name = "Autores")
 public class AutorController implements GenericController {
 
     private final AutorService service;
@@ -27,6 +32,11 @@ public class AutorController implements GenericController {
 
     @PostMapping
     @PreAuthorize("hasRole('GERENTE')")
+    @Operation(summary = "Salvar", description = "Cadastrar novo Autor")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "cadastrado com sucesso."),
+            @ApiResponse(responseCode = "422", description = "erro validaçao.")
+    })
     public ResponseEntity<?> salvar(@RequestBody @Valid AutorDTO dto) {
         Autor autor = mapper.toEntity(dto);
         service.salvar(autor);
